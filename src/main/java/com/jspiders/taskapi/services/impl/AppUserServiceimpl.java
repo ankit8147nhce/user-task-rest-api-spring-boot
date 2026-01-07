@@ -148,7 +148,7 @@ public class AppUserServiceimpl implements AppUserService
 //            IllegalArgumentException ex = new IllegalArgumentException();
 //            throw ex;
 
-            InvalidPasswordException ex = new InvalidPasswordException("Invalid Name");
+            InvalidPasswordException ex = new InvalidPasswordException("Invalid Password");
             throw ex;
         }
     }
@@ -156,15 +156,5 @@ public class AppUserServiceimpl implements AppUserService
     //*******************************************
     //Validaition Logic ends
     //*******************************************
-
-
-
-    }
-
-
-
-
-
-
 
 }
