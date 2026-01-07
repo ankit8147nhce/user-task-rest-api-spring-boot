@@ -3,6 +3,7 @@ package com.jspiders.taskapi.controllers;
 import com.jspiders.taskapi.data.users.AppUser;
 import com.jspiders.taskapi.data.users.CreateUserRequest;
 import com.jspiders.taskapi.services.AppUserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class UserController
     }
 
     @PostMapping
-    public ResponseEntity<String> addUser(@RequestBody CreateUserRequest createUserRequest)
+    public ResponseEntity<String> addUser(@RequestBody @Valid CreateUserRequest createUserRequest)
     {
         System.out.println("this is UserController --> addUser()");
         ResponseEntity<String> response = appUserService.createUser(createUserRequest);
