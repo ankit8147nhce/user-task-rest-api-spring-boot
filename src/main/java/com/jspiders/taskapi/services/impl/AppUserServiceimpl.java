@@ -2,6 +2,10 @@ package com.jspiders.taskapi.services.impl;
 
 import com.jspiders.taskapi.data.users.AppUser;
 import com.jspiders.taskapi.data.users.CreateUserRequest;
+import com.jspiders.taskapi.error.InvalidEmailException;
+import com.jspiders.taskapi.error.InvalidMobileException;
+import com.jspiders.taskapi.error.InvalidNameException;
+import com.jspiders.taskapi.error.InvalidPasswordException;
 import com.jspiders.taskapi.services.AppUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -18,6 +22,20 @@ public class AppUserServiceimpl implements AppUserService
     public ResponseEntity<String> createUser(CreateUserRequest createUserRequest)
     {
         System.out.println("this is AppUserServiceImpl --> createUser()");
+
+
+        //*********************
+        //validation calls
+        //*********************
+
+        validateName(createUserRequest);
+        validateEmail(createUserRequest);
+        validateMobile(createUserRequest);
+        validatePassword(createUserRequest);
+
+        //*********************
+        //Validation calls ends
+        //*********************
 
         //logics
 
@@ -65,10 +83,88 @@ public class AppUserServiceimpl implements AppUserService
     {
         System.out.println("this is AppUserServiceImpl --> getUserById()");
 
+
+        
         //logics
+
+
+        //save data to database
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(null);
     }
+
+    //************************************
+    //validation logics
+    //************************************
+
+    //Validation logic for Name
+    private void validateName(CreateUserRequest createUserRequest)
+    {
+        //Validation
+        if(createUserRequest.getName() != null && createUserRequest.getName().length()<3)
+        {
+//            IllegalArgumentException ex = new IllegalArgumentException();
+//            throw ex;
+
+            InvalidNameException ex = new InvalidNameException("Invalid Name");
+            throw ex;
+        }
+    }
+
+    //Validation logic for Email
+    private void validateEmail(CreateUserRequest createUserRequest) {
+        //Validation
+        if (createUserRequest.getEmail() != null && createUserRequest.getEmail().length() < 8) {
+//            IllegalArgumentException ex = new IllegalArgumentException();
+//            throw ex;
+
+            InvalidEmailException ex = new InvalidEmailException("Invalid Email");
+            throw ex;
+        }
+    }
+
+        //Validation logic for MobileNumber
+        private void validateMobile(CreateUserRequest createUserRequest)
+        {
+            //Validation
+            if(createUserRequest.getMobile() != null && createUserRequest.getMobile().length()<11)
+            {
+//            IllegalArgumentException ex = new IllegalArgumentException();
+//            throw ex;
+
+                InvalidMobileException ex = new InvalidMobileException("Invalid Mobile Number");
+                throw ex;
+            }
+        }
+
+    //Validation logic for Password
+    private void validatePassword(CreateUserRequest createUserRequest)
+    {
+        //Validation
+        if(createUserRequest.getPassword() != null && createUserRequest.getPassword().length()<8)
+        {
+//            IllegalArgumentException ex = new IllegalArgumentException();
+//            throw ex;
+
+            InvalidPasswordException ex = new InvalidPasswordException("Invalid Name");
+            throw ex;
+        }
+    }
+
+    //*******************************************
+    //Validaition Logic ends
+    //*******************************************
+
+
+
+    }
+
+
+
+
+
+
+
 }
