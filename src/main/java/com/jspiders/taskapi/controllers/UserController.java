@@ -1,21 +1,30 @@
 package com.jspiders.taskapi.controllers;
 
 import com.jspiders.taskapi.data.users.AppUser;
+import com.jspiders.taskapi.data.users.AppUserDTO;
 import com.jspiders.taskapi.data.users.CreateUserRequest;
+import com.jspiders.taskapi.data.users.CreateUserResponse;
 import com.jspiders.taskapi.services.AppUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-
-
+//***************************
+// This is logger annotation , istead of the LoggerFactory.getLogger(), we can use the annotaion
+@Slf4j
+//*******************************
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController
 {
+
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
     //immutable
     private final AppUserService appUserService;
     @Autowired
@@ -25,37 +34,55 @@ public class UserController
     }
 
     @PostMapping
-    public ResponseEntity<String> addUser(@RequestBody @Valid CreateUserRequest createUserRequest)
+    public ResponseEntity<CreateUserResponse> addUser(@RequestBody @Valid CreateUserRequest createUserRequest)
     {
-        System.out.println("this is UserController --> addUser()");
-        ResponseEntity<String> response = appUserService.createUser(createUserRequest);
+        //instead of System.out.println use logger
+        //and if we are writing with the help of @Slf4j annotaion then write log.info("message").
+        //logger.info("this is UserController --> addUser()");
+        //System.out.println("this is UserController --> addUser()");
+        log.info("inside addUser() createUserRequest : {}",createUserRequest);
+        ResponseEntity<CreateUserResponse> response = appUserService.createUser(createUserRequest);
+        log.info("inside addUser() : User created");
         return response;
     }
 
     @PutMapping
     public ResponseEntity<String> updateUser(){
-        System.out.println("this is UserController --> updateUser()");
+        //instead of System.out.println use logger
+        //and if we are writing with the help of @Slf4j annotaion then write log.info("message").
+        //log.info("this is UserController --> updateUser()");
+        //System.out.println("this is UserController --> updateUser()");
+        log.info("updateUser()");
         ResponseEntity<String> response = appUserService.updateUser();
         return response;
     }
 
     @DeleteMapping
     ResponseEntity<String> deleteUser(String email,String mobile,String password){
-        System.out.println("this is UserController --> deleteUser()");
+        //instead of System.out.println use logger
+        //and if we are writing with the help of @Slf4j annotaion then write log.info("message").
+        logger.info("this is UserController --> deleteUser()");
+        //System.out.println("this is UserController --> deleteUser()");
         ResponseEntity<String> response = appUserService.deleteUser(email,mobile,password);
         return response;
     }
 
     @GetMapping
     ResponseEntity<List<AppUser>> getAllUsers(){
-        System.out.println("this is UserController --> getAllUsers()");
+        //instead of System.out.println use logger
+        //and if we are writing with the help of @Slf4j annotaion then write log.info("message").
+        logger.info("this is UserController --> getAllUsers()");
+        //System.out.println("this is UserController --> getAllUsers()");
         ResponseEntity<List<AppUser>> response = appUserService.getAllUsers();
         return response;
     }
     @GetMapping("/{userId}")
-    ResponseEntity<AppUser> getUserById(@PathVariable Long userId){
+    ResponseEntity<AppUserDTO> getUserById(@PathVariable Long userId){
+        //instead of System.out.println use logger
+        //and if we are writing with the help of @Slf4j annotaion then write log.info("message").
+        logger.info("this is UserController --> getUserById()");
         System.out.println("this is UserController --> getUserById()");
-        ResponseEntity<AppUser> response = appUserService.getUserById(userId);
+        ResponseEntity<AppUserDTO> response = appUserService.getUserById(userId);
         return response;
     }
 }

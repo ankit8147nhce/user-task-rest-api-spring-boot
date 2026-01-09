@@ -1,37 +1,55 @@
 package com.jspiders.taskapi.services.impl;
 
 import com.jspiders.taskapi.data.users.AppUser;
+import com.jspiders.taskapi.data.users.AppUserDTO;
 import com.jspiders.taskapi.data.users.CreateUserRequest;
+import com.jspiders.taskapi.data.users.CreateUserResponse;
 import com.jspiders.taskapi.error.InvalidEmailException;
 import com.jspiders.taskapi.error.InvalidMobileException;
 import com.jspiders.taskapi.error.InvalidNameException;
 import com.jspiders.taskapi.error.InvalidPasswordException;
 import com.jspiders.taskapi.services.AppUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 
-import java.util.List;
+import java.util.*;
 
 //@Component
 @Service
+@Slf4j
 public class AppUserServiceimpl implements AppUserService
 {
+
+    private static Map<Long,AppUser> userDb = new HashMap();
     @Override
-    public ResponseEntity<String> createUser(CreateUserRequest createUserRequest)
+    public ResponseEntity<CreateUserResponse> createUser(CreateUserRequest createUserRequest)
     {
-        System.out.println("this is AppUserServiceImpl --> createUser()");
+
+        log.info("inside createUser() {}",createUserRequest);
+
+        //1. execute business logic
+
+        //2. perfrom db operations (CRUD)
+        Long userId = saveUser(createUserRequest);
+
+        //3. build response object
+        CreateUserResponse response = new CreateUserResponse();
+        response.setMessage("User Created");
+        response.setUserId(userId);
+        //System.out.println("this is AppUserServiceImpl --> createUser()");
 
 
         //*********************
-        //validation calls
+        //validation calls : This is not required as we dont want manual validation, instead we awant Bean validation by Spring Boot FrameWork
         //*********************
 
-        validateName(createUserRequest);
-        validateEmail(createUserRequest);
-        validateMobile(createUserRequest);
-        validatePassword(createUserRequest);
+//        validateName(createUserRequest);
+//        validateEmail(createUserRequest);
+//        validateMobile(createUserRequest);
+//        validatePassword(createUserRequest);
 
         //*********************
         //Validation calls ends
@@ -41,9 +59,12 @@ public class AppUserServiceimpl implements AppUserService
 
 //        ResponseEntity<String> response = ResponseEntity.ok("User created ");
 //        return response;
+        log.info("inside createUser() : User created");
+
+        //4. return response object
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body("User created");
+                .body(response);
     }
 
     @Override
@@ -70,29 +91,50 @@ public class AppUserServiceimpl implements AppUserService
     @Override
     public ResponseEntity<List<AppUser>> getAllUsers()
     {
-        System.out.println("this is AppUserServiceImpl --> getAllUsers()");
+        //System.out.println("this is AppUserServiceImpl --> getAllUsers()");
 
-        //logics
+        //database ops(GET all users from db
+        Collection<AppUser> values = userDb.values();
+        List<AppUser> users = new ArrayList<>(values);
+
+
+        //business logics(ReMOVE Password DATA from Response
+
+
+        //build the response
+
+
+        //return the response object
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(null);
+                .body(users);
     }
 
     @Override
-    public ResponseEntity<AppUser> getUserById(Long userId)
+    public ResponseEntity<AppUserDTO> getUserById(Long userId)
     {
-        System.out.println("this is AppUserServiceImpl --> getUserById()");
+        //System.out.println("this is AppUserServiceImpl --> getUserById()");
+
+        log.info("inside getUserById()");
+
+        //1. execute business logic
+
+        //2. perform db operation
+        AppUser appUser = userDb.get(userId);
+
+        //3. build resonpse object
+        AppUserDTO response = new AppUserDTO();
+        response.setName(appUser.getName());
+        response.setEmail(appUser.getEmail());
+        response.setMobile(appUser.getMobile());
+        response.setActive(appUser.isActive());
+        response.setUserId(appUser.getUserId());
 
 
-        
-        //logics
-
-
-        //save data to database
-
+        // 4. return response object
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(null);
+                .body(response);
     }
 
     //************************************
@@ -157,4 +199,20 @@ public class AppUserServiceimpl implements AppUserService
     //Validaition Logic ends
     //*******************************************
 
+
+        private Long saveUser(CreateUserRequest createUserRequest){
+        AppUser appUser = new AppUser(); //create a row or record in db
+            appUser.setName(createUserRequest.getName());
+            appUser.setEmail(createUserRequest.getEmail());
+            appUser.setMobile(createUserRequest.getMobile());
+            appUser.setPassword(createUserRequest.getPassword());
+
+            Random random = new Random();
+            Long userId = random.nextLong();
+
+            appUser.setUserId(userId);
+            appUser.setActive(true);
+            userDb.put(userId,appUser); //save data to db
+            return userId;
+        }
 }
