@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+//@Service : @Service means “this class CONTAINS logic”
+//Interface contains NO logic
+//Therefore NEVER write @Service annotation for interfaces.
 public interface AppUserService {
 
     ResponseEntity<CreateUserResponse> createUser(CreateUserRequest createUserRequest);

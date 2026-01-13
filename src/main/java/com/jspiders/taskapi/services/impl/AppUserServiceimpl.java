@@ -1,29 +1,37 @@
 package com.jspiders.taskapi.services.impl;
 
-import com.jspiders.taskapi.data.users.AppUser;
-import com.jspiders.taskapi.data.users.AppUserDTO;
-import com.jspiders.taskapi.data.users.CreateUserRequest;
-import com.jspiders.taskapi.data.users.CreateUserResponse;
+import com.jspiders.taskapi.data.users.*;
 import com.jspiders.taskapi.error.InvalidEmailException;
 import com.jspiders.taskapi.error.InvalidMobileException;
 import com.jspiders.taskapi.error.InvalidNameException;
 import com.jspiders.taskapi.error.InvalidPasswordException;
 import com.jspiders.taskapi.services.AppUserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 
-//@Component
+//@Component or @Service
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AppUserServiceimpl implements AppUserService
 {
 
+    // DB
     private static Map<Long,AppUser> userDb = new HashMap();
+
+    // ObjectMapper to map the dto fields
+    private final ObjectMapper mapper;
+
+    //since we are using AppUserRepository interface, hence we need objects here
+    private final AppUserRepository appUserRepository;
+
+    //create user api
     @Override
     public ResponseEntity<CreateUserResponse> createUser(CreateUserRequest createUserRequest)
     {
@@ -33,7 +41,14 @@ public class AppUserServiceimpl implements AppUserService
         //1. execute business logic
 
         //2. perfrom db operations (CRUD)
-        Long userId = saveUser(createUserRequest);
+        //Long userId = saveUser(createUserRequest);
+
+        //saving data in actual DataBase(MySql)
+        AppUser appUser = mapper.convertValue(createUserRequest, AppUser.class);
+        appUser.setActive(true);
+
+        AppUser appUser1 = appUserRepository.save(appUser);
+        Long userId = appUser.getUserId();
 
         //3. build response object
         CreateUserResponse response = new CreateUserResponse();
@@ -67,6 +82,8 @@ public class AppUserServiceimpl implements AppUserService
                 .body(response);
     }
 
+
+    //update user api
     @Override
     public ResponseEntity<String> updateUser() {
         System.out.println("this is AppUserServiceImpl --> updateUser()");
@@ -95,7 +112,11 @@ public class AppUserServiceimpl implements AppUserService
 
         //database ops(GET all users from db
         Collection<AppUser> values = userDb.values();
-        List<AppUser> users = new ArrayList<>(values);
+        List<AppUser> appUserList = new ArrayList<>(values);
+        List<AppUserDTO> appUserDTOList = new ArrayList<>();
+
+        //have defined this ObjectMapper as Global Varibale above and created the object using @RequiredArgsConstructor
+        //ObjectMapper mapper = new ObjectMapper();
 
 
         //business logics(ReMOVE Password DATA from Response
@@ -103,11 +124,30 @@ public class AppUserServiceimpl implements AppUserService
 
         //build the response
 
+        //this is manual mapping
+//        for(AppUser appUser : appUserList){
+//            AppUserDTO appUserDTO = new AppUserDTO();
+//
+//            appUserDTO.setName(appUser.getName());
+//            appUserDTO.setEmail(appUser.getEmail());
+//            appUserDTO.setMobile(appUser.getMobile());
+//            appUserDTO.setUserId(appUser.getUserId());
+//            appUserDTO.setActive(appUser.isActive());
+//            appUserDTOList.add(appUserDTO);
+//        }
+
+        //lets maps through ObjectMapper
+
+        for(AppUser appUser : appUserList){
+            AppUserDTO appUserDTO = mapper.convertValue(appUser, AppUserDTO.class);
+            appUserDTOList.add(appUserDTO);
+        }
+
 
         //return the response object
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(users);
+                .body(appUserList);
     }
 
     @Override
@@ -123,12 +163,18 @@ public class AppUserServiceimpl implements AppUserService
         AppUser appUser = userDb.get(userId);
 
         //3. build resonpse object
-        AppUserDTO response = new AppUserDTO();
-        response.setName(appUser.getName());
-        response.setEmail(appUser.getEmail());
-        response.setMobile(appUser.getMobile());
-        response.setActive(appUser.isActive());
-        response.setUserId(appUser.getUserId());
+        //this is manual process
+//        AppUserDTO response = new AppUserDTO();
+//        response.setName(appUser.getName());
+//        response.setEmail(appUser.getEmail());
+//        response.setMobile(appUser.getMobile());
+//        response.setActive(appUser.isActive());
+//        response.setUserId(appUser.getUserId());
+
+        //lets do it using Spring ObjectMapper class
+        //have defined ObjectMapper as Global variable above
+        //ObjectMapper mapper = new ObjectMapper();
+        AppUserDTO response = mapper.convertValue(appUser, AppUserDTO.class);
 
 
         // 4. return response object
@@ -200,6 +246,10 @@ public class AppUserServiceimpl implements AppUserService
     //*******************************************
 
 
+    //******************************************************
+    //Adding data to the userDb table that was created globally using Map
+    // private static Map<Long,AppUser> userDb = new HashMap();
+    //********************************************************
         private Long saveUser(CreateUserRequest createUserRequest){
         AppUser appUser = new AppUser(); //create a row or record in db
             appUser.setName(createUserRequest.getName());

@@ -5,6 +5,7 @@ import com.jspiders.taskapi.data.users.AppUserDTO;
 import com.jspiders.taskapi.data.users.CreateUserRequest;
 import com.jspiders.taskapi.data.users.CreateUserResponse;
 import com.jspiders.taskapi.services.AppUserService;
+import com.jspiders.taskapi.services.impl.AppUserServiceimpl2;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,11 @@ public class UserController
 
     private final Logger logger = LoggerFactory.getLogger(UserController.class);
     //immutable
-    private final AppUserService appUserService;
+
+    //AppUserServiceimpl2 : we are using this as we have created new implementation becasue we are using MySQL Database
+    private final AppUserServiceimpl2 appUserService;
     @Autowired
-    public UserController(AppUserService appUserService)
+    public UserController(AppUserServiceimpl2 appUserService)
     {
         this.appUserService = appUserService;
     }
